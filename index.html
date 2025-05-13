@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Card Bar Helper</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>Card Bar Helper</h1>
+
+  <div class="bar-container">
+    <div id="bar-fill"></div>
+    <span id="bar-text">10 / 10</span>
+  </div>
+
+  <div class="cards-section">
+    <div id="deck-container" class="deck-preview"></div>
+    <div id="hand-container" class="cards-container"></div>
+  </div>
+
+  <div class="input-container">
+    <input type="text" id="card-name" placeholder="Card name" />
+    <input type="number" id="card-value" placeholder="Value (1-10)" min="1" max="10"/>
+    <button onclick="addCard()">Add Card</button>
+  </div>
+
+  <div id="message-area"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+/* Basic Page Style */
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f4f4f4;
+  padding: 20px;
+}
+
+/* Bar Container */
+.bar-container {
+  position: relative;
+  height: 30px;
+  width: 300px;
+  margin: 20px auto;
+  background: #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+/* Bar Fill */
+#bar-fill {
+  height: 100%;
+  width: 100%;
+  background: #4caf50;
+  transition: width 0.6s ease-in-out;
+}
+
+/* Bar Text */
+#bar-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 0;
+  line-height: 30px;
+  font-weight: bold;
+  color: #000;
+}
+
+/* Cards Section Layout */
+.cards-section {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+/* Hand and Deck Card Containers */
+.cards-container,
+.deck-preview {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Deck Stack (vertical if needed) */
+#deck-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Card Styling */
+.card {
+  position: relative;
+  padding: 10px;
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  cursor: pointer;
+  min-width: 80px;
+  text-align: center;
+}
+
+.card-content {
+  opacity: 1;
+  transition: opacity 0s;
+}
+
+/* Card Hover and Click Effects */
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.card:active {
+  transform: scale(0.98);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* Disabled Cards */
+.disabled-card {
+  background-color: #aaa !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+  pointer-events: none;
+  transform: scale(1);
+}
+
+.disabled-card:hover,
+.disabled-card:active {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Deck Position Label (for next cards: 1, 2, 3...) */
+.deck-position-label {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  background: #333;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+/* Input Container */
+.input-container {
+  margin-top: 20px;
+}
+
+/* Message Area */
+#message-area {
+  margin-top: 15px;
+  min-height: 24px;
+  font-weight: bold;
+  text-align: center;
+  padding: 10px 0;
+}
+
+/* Deck Preview Cards */
+.deck-preview .card {
+  background-color: #ccc;
+  cursor: default;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .cards-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .cards-container,
+  .deck-preview {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .bar-container {
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .card {
+    min-width: 70px;
+  }
+}
