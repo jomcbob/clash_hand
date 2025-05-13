@@ -51,36 +51,37 @@ function renderHand() {
       card.style.pointerEvents = "none";
     }
 
-card.onclick = () => {
-  if (currentBar < cardObj.value) return; // Make sure the player has enough energy
-
-  // Subtract the card value from the bar
-  currentBar -= cardObj.value;
-  updateBar();
-  showMessage(`Used "${cardObj.name}" for -${cardObj.value}.`, 'green');
-
-  // Animate the card out (for UI effect)
-  card.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-  card.style.transform = "scale(0)";
-  card.style.opacity = 0;
-  card.style.pointerEvents = "none";
-  card.style.visibility = "hidden";
-
-  // After the animation completes, update the deck and hand
-  setTimeout(() => {
-    // Remove the used card from the hand (top 4 cards)
-    const usedCard = deck.splice(index, 1)[0];
-
-    // Add the played card to the bottom of the deck
-    deck.push(usedCard);
-
-    // Now update the hand (first 4 cards)
-    renderHand();
-  }, 300); // Wait for animation to finish before re-rendering
-};
-
+    card.onclick = () => {
+      if (currentBar < cardObj.value) return;
     
+      currentBar -= cardObj.value;
+      updateBar();
+      showMessage(`Used "${cardObj.name}" for -${cardObj.value}.`, 'green');
     
+      card.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+      card.style.transform = "scale(0)";
+      card.style.opacity = 0;
+      card.style.pointerEvents = "none";
+      card.style.visibility = "hidden";
+    
+      setTimeout(() => {
+        // Save the next card FIRST, before modifying the deck
+        const nextCard = deck[4]; // This is the first queued card (index 4)
+    
+        // Remove the used card from the hand
+        const usedCard = deck.splice(index, 1)[0];
+        deck.push(usedCard); // Send the used card to the bottom
+    
+        // Only insert next card if it existed
+        if (nextCard) {
+          // Remove it from its original spot (was at index 4 before usedCard was removed)
+          deck.splice(deck.indexOf(nextCard), 1);
+          deck.splice(index, 0, nextCard); // Put it into the used spot
+        }
+    
+        renderHand();
+      }, 300);
+    };
     
 
     handContainer.appendChild(card);
@@ -90,17 +91,17 @@ card.onclick = () => {
   deck.slice(handSize).forEach((cardObj, idx) => {
     const card = document.createElement("div");
     card.className = "card";
-  
+
     const positionLabel = document.createElement("div");
     positionLabel.className = "deck-position-label";
     positionLabel.textContent = (idx + 1).toString(); // 1-based position
     card.appendChild(positionLabel);
-  
+
     const cardContent = document.createElement("div");
     cardContent.className = "card-content";
     cardContent.innerHTML = `<strong>${cardObj.name}</strong><br/>-${cardObj.value}`;
     card.appendChild(cardContent);
-  
+
     deckContainer.appendChild(card);
   });
 }
