@@ -57,10 +57,21 @@ function renderHand() {
         showMessage(`Used "${cardObj.name}" for -${cardObj.value}.`, 'green');
 
         // Play the card and push it to the bottom of the deck
-        deck.splice(deck.indexOf(cardObj), 1); // Remove card from hand
-        deck.push(cardObj); // Add it to the bottom of the deck
+// Remove card from hand
+deck.splice(index, 1);
 
-        renderHand();  // Re-render the hand
+// Add it to the bottom of the deck
+deck.push(cardObj);
+
+// Insert a new card from the back into this hand position (if available)
+if (deck.length >= 4) {
+  const newCard = deck.splice(3, 1)[0]; // Take the next card after top 3
+  deck.splice(index, 0, newCard);       // Put it in the current index
+}
+
+renderHand();
+renderDeck();
+
       };
     }
 
