@@ -1,7 +1,7 @@
 let maxBar = 10;
 let currentBar = 10;
 
-const deck = []; // All cards go here
+const deck = [null, null, null, null, null, null, null, null];  // Initialize deck with 8 null spots
 
 function updateBar() {
   const barFill = document.getElementById("bar-fill");
@@ -13,7 +13,7 @@ function updateBar() {
 
   barText.textContent = `${Math.round(currentBar * 10) / 10} / ${maxBar}`;
 
-  updateCardStates(); // Just update visuals, not DOM
+  updateCardStates(); // Update visual states of cards
 }
 
 function showMessage(message, color = 'red') {
@@ -24,88 +24,142 @@ function showMessage(message, color = 'red') {
 
 function renderHand() {
   const handContainer = document.getElementById("hand-container");
-  const deckContainer = document.getElementById("deck-container");
-
   handContainer.innerHTML = "";
-  deckContainer.innerHTML = "";
 
-  const handSize = 4;
-
-  // Show top 4 as hand
-  deck.slice(0, handSize).forEach((cardObj, index) => {
+  // Show top 4 cards in hand (index 0–3)
+  deck.slice(0, 4).forEach((cardObj, index) => {
     const card = document.createElement("div");
     card.className = "card";
 
     const cardContent = document.createElement("div");
     cardContent.className = "card-content";
-    cardContent.innerHTML = `<strong>${cardObj.name}</strong><br/>-${cardObj.value}`;
-    card.appendChild(cardContent);
 
-    const affordable = currentBar >= cardObj.value;
-
-    if (affordable) {
-      card.classList.remove("disabled-card");
-      card.style.pointerEvents = "auto";
+    // If the card is null, display it as ?
+    if (cardObj === null) {
+      cardContent.innerHTML = "<strong>?</strong>";
+      card.style.pointerEvents = "none";  // Can't click a null card
     } else {
-      card.classList.add("disabled-card");
-      card.style.pointerEvents = "none";
+      cardContent.innerHTML = `<strong>${cardObj.name}</strong><br/>-${cardObj.value}`;
+      const affordable = currentBar >= cardObj.value;
+      
+      if (affordable) {
+        card.classList.remove("disabled-card");
+        card.style.pointerEvents = "auto";
+      } else {
+        card.classList.add("disabled-card");
+        card.style.pointerEvents = "none";
+      }
+
+      card.onclick = () => {
+        if (currentBar < cardObj.value) return; // Not enough energy to play card
+        currentBar -= cardObj.value;
+        updateBar();
+        showMessage(`Used "${cardObj.name}" for -${cardObj.value}.`, 'green');
+
+        // Play the card and push it to the bottom of the deck
+        deck.splice(deck.indexOf(cardObj), 1); // Remove card from hand
+        deck.push(cardObj); // Add it to the bottom of the deck
+
+        renderHand();  // Re-render the hand
+      };
     }
 
-    card.onclick = () => {
-      if (currentBar < cardObj.value) return;
-    
-      currentBar -= cardObj.value;
-      updateBar();
-      showMessage(`Used "${cardObj.name}" for -${cardObj.value}.`, 'green');
-    
-      card.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-      card.style.transform = "scale(0)";
-      card.style.opacity = 0;
-      card.style.pointerEvents = "none";
-      card.style.visibility = "hidden";
-    
-      setTimeout(() => {
-        // Save the next card FIRST, before modifying the deck
-        const nextCard = deck[4]; // This is the first queued card (index 4)
-    
-        // Remove the used card from the hand
-        const usedCard = deck.splice(index, 1)[0];
-        deck.push(usedCard); // Send the used card to the bottom
-    
-        // Only insert next card if it existed
-        if (nextCard) {
-          // Remove it from its original spot (was at index 4 before usedCard was removed)
-          deck.splice(deck.indexOf(nextCard), 1);
-          deck.splice(index, 0, nextCard); // Put it into the used spot
-        }
-    
-        renderHand();
-      }, 300);
-    };
-    
-
+    card.appendChild(cardContent);
     handContainer.appendChild(card);
   });
+}
 
-  // Show remaining deck
-  deck.slice(handSize).forEach((cardObj, idx) => {
+function renderDeck() {
+  const deckContainer = document.getElementById("deck-container");
+  deckContainer.innerHTML = ""; // Clear current deck display
+
+  // Show the remaining cards in the deck (positions 4–7)
+  deck.slice(4, 8).forEach((cardObj, index) => {
     const card = document.createElement("div");
     card.className = "card";
 
-    const positionLabel = document.createElement("div");
-    positionLabel.className = "deck-position-label";
-    positionLabel.textContent = (idx + 1).toString(); // 1-based position
-    card.appendChild(positionLabel);
-
     const cardContent = document.createElement("div");
     cardContent.className = "card-content";
-    cardContent.innerHTML = `<strong>${cardObj.name}</strong><br/>-${cardObj.value}`;
-    card.appendChild(cardContent);
 
+    // If the card is null, display it as ?
+    if (cardObj === null) {
+      cardContent.innerHTML = "<strong>?</strong>";
+      card.style.pointerEvents = "none";  // Can't click a null card
+    } else {
+      cardContent.innerHTML = `<strong>${cardObj.name}</strong><br/>-${cardObj.value}`;
+    }
+
+    card.appendChild(cardContent);
     deckContainer.appendChild(card);
   });
 }
 
+function renderStarterOptions() {
+  const starterList = [
+    { name: "Strike", value: 2 },
+    { name: "Block", value: 1 },
+    { name: "Fireball", value: 4 },
+    { name: "Dash", value: 1 },
+    { name: "Heal", value: 3 },
+    { name: "Shield", value: 2 },
+    { name: "Poison", value: 3 },
+    { name: "Charge", value: 2 }
+  ];
+
+  const container = document.getElementById("starter-cards");
+  container.innerHTML = "";
+
+  starterList.forEach((cardData) => {
+    const card = document.createElement("div");
+    card.className = "starter-card";
+    card.textContent = `${cardData.name} (-${cardData.value})`;
+
+    card.onclick = () => {
+      // Subtract energy when card is selected
+      if (currentBar < cardData.value) {
+        showMessage(`Not enough energy to add "${cardData.name}".`, 'red');
+        return;
+      }
+
+      currentBar -= cardData.value;
+      updateBar();
+      showMessage(`Added "${cardData.name}" to deck.`, 'green');
+
+      // Find the last null spot in the deck (positions 4–7) and remove it
+      const lastNullIndex = deck.lastIndexOf(null);
+
+      if (lastNullIndex === -1) {
+        // If there's no null spot, the deck is full
+        showMessage("Deck is full. All cards are set.", "red");
+        return;
+      }
+
+      // Remove the last null spot and insert the new card at the end of the deck
+      deck.splice(lastNullIndex, 1);  // Remove the last null slot
+      deck.push({ ...cardData });  // Add the selected card at the bottom of the deck
+
+      // Render the deck and the hand after adding the card
+      renderHand();
+      renderDeck();
+      
+      // Disable the selected starter card (visually)
+      card.style.pointerEvents = "none";
+      card.style.opacity = 0.5;
+    };
+
+    container.appendChild(card);
+  });
+}
+
+// Initialize the deck with `null` values
+function preloadDeck() {
+  renderStarterOptions();
+  renderHand();
+  renderDeck();
+  showMessage("Deck initialized with starter options.", "green");
+}
+
+// Update the visual state of cards
 function updateCardStates() {
   const handCards = document.querySelectorAll("#hand-container .card");
   handCards.forEach((cardEl, i) => {
@@ -122,53 +176,7 @@ function updateCardStates() {
   });
 }
 
-function preloadDeck() {
-  const sampleCards = [
-    { name: "Strike", value: 2 },
-    { name: "Block", value: 1 },
-    { name: "Fireball", value: 4 },
-    { name: "Dash", value: 1 },
-    { name: "Heal", value: 3 },
-    { name: "Shield", value: 2 },
-    { name: "Poison", value: 3 },
-    { name: "Charge", value: 2 }
-  ];
-
-  deck.push(...sampleCards);
-  renderHand();
-  showMessage("Preloaded 8 test cards.", "green");
-}
-
-function addCard() {
-  const nameInput = document.getElementById("card-name");
-  const valueInput = document.getElementById("card-value");
-
-  const name = nameInput.value.trim();
-  const value = parseInt(valueInput.value);
-
-  if (!name) {
-    showMessage("Please enter a card name.");
-    return;
-  }
-
-  if (isNaN(value) || value < 1 || value > 10) {
-    showMessage("Enter a valid number between 1 and 10.");
-    return;
-  }
-
-  if (deck.length >= 8) {
-    showMessage("Deck is full. Max 8 cards allowed.");
-    return;
-  }
-
-  deck.push({ name, value });
-  nameInput.value = "";
-  valueInput.value = "";
-
-  showMessage(`Card "${name}" added.`, 'green');
-  renderHand();
-}
-
+// Auto-recharge bar every 200ms (just for demonstration)
 function autoRecharge() {
   setInterval(() => {
     if (currentBar < maxBar) {
@@ -177,26 +185,6 @@ function autoRecharge() {
     }
   }, 200);
 }
-
-document.addEventListener("keydown", (e) => {
-  const key = e.key;
-
-  if (!["1", "2", "3", "4"].includes(key)) return;
-
-  const index = parseInt(key) - 1;
-  const handCards = document.querySelectorAll("#hand-container .card");
-
-  if (handCards[index]) {
-    const card = handCards[index];
-    if (!card.classList.contains("disabled-card")) {
-      card.click();
-      card.classList.add("key-pressed");
-      setTimeout(() => card.classList.remove("key-pressed"), 150);
-    } else {
-      showMessage(`Not enough energy for card ${key}.`, 'red');
-    }
-  }
-});
 
 // Initialize
 updateBar();

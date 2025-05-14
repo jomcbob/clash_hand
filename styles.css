@@ -163,3 +163,34 @@ body {
     min-width: 70px;
   }
 }
+
+.starter-options {
+  position: absolute;
+  left: 20px;
+  top: 80px;
+  width: 140px;
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#starter-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.starter-card {
+  background-color: #f0f0f0;
+  padding: 8px;
+  border: 2px solid #bbb;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.starter-card:hover {
+  background-color: #e0e0e0;
+}
