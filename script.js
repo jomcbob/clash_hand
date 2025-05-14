@@ -1,76 +1,72 @@
-let maxBar = 10;
-let currentBar = 10;
+let maxBar = 10
+let currentBar = 10
+let maxDeckSize = 8
 
-const deck = [null, null, null, null, null, null, null, null];  // Initialize deck with 8 null spots
+const deck = [null, null, null, null, null, null, null, null]
 
 function updateBar() {
-  const barFill = document.getElementById("bar-fill");
-  const barText = document.getElementById("bar-text");
+  const barFill = document.getElementById("bar-fill")
+  const barText = document.getElementById("bar-text")
 
-  const percent = (currentBar / maxBar) * 100;
-  barFill.style.transition = "width 0.2s ease-in-out";
-  barFill.style.width = `${percent}%`;
+  const percent = (currentBar / maxBar) * 100
+  barFill.style.transition = "width 0.2s ease-in-out"
+  barFill.style.width = `${percent}%`
 
-  barText.textContent = `${Math.round(currentBar * 10) / 10} / ${maxBar}`;
+  barText.textContent = `${Math.round(currentBar * 10) / 10} / ${maxBar}`
 
-  updateCardStates(); // Update visual states of cards
+  updateCardStates()
 }
 
 function showMessage(message, color = 'red') {
-  const messageArea = document.getElementById("message-area");
-  messageArea.textContent = message;
-  messageArea.style.color = color;
+  const messageArea = document.getElementById("message-area")
+  messageArea.textContent = message
+  messageArea.style.color = color
 }
 
 function renderHand() {
-  const handContainer = document.getElementById("hand-container");
-  handContainer.innerHTML = "";
+  const handContainer = document.getElementById("hand-container")
+  handContainer.innerHTML = ""
 
-  // Show top 4 cards in hand (index 0–3)
   deck.slice(0, 4).forEach((cardObj, index) => {
-    const card = document.createElement("div");
-    card.className = "card";
+    const card = document.createElement("div")
+    card.className = "card"
 
-    const cardContent = document.createElement("div");
-    cardContent.className = "card-content";
+    const cardContent = document.createElement("div")
+    cardContent.className = "card-content"
 
-    // If the card is null, display it as ?
     if (cardObj === null) {
-      cardContent.innerHTML = "<strong>?</strong>";
-      card.style.pointerEvents = "none";  // Can't click a null card
+      cardContent.innerHTML = "<strong>?</strong>"
+      card.style.pointerEvents = "none"
     } else {
-      cardContent.innerHTML = `<strong>${cardObj.name}</strong><br/>-${cardObj.value}`;
-      const affordable = currentBar >= cardObj.value;
-      
+      cardContent.innerHTML = `<strong>${cardObj.name}</strong><br/>-${cardObj.value}`
+      const affordable = currentBar >= cardObj.value
+
       if (affordable) {
-        card.classList.remove("disabled-card");
-        card.style.pointerEvents = "auto";
+        card.classList.remove("disabled-card")
+        card.style.pointerEvents = "auto"
       } else {
-        card.classList.add("disabled-card");
-        card.style.pointerEvents = "none";
+        card.classList.add("disabled-card")
+        card.style.pointerEvents = "none"
       }
 
       card.onclick = () => {
-        if (currentBar < cardObj.value) return; // Not enough energy to play card
+        if (currentBar < cardObj.value) return
         currentBar -= cardObj.value;
-        updateBar();
-        showMessage(`Used "${cardObj.name}" for -${cardObj.value}.`, 'green');
+        updateCardStates()
+        showMessage(`Used "${cardObj.name}" for -${cardObj.value}.`, 'green')
 
-        // Play the card and push it to the bottom of the deck
-// Remove card from hand
-deck.splice(index, 1);
+        deck.splice(index, 1)
 
-// Add it to the bottom of the deck
-deck.push(cardObj);
+        deck.push(cardObj);
 
-// Insert a new card from the back into this hand position (if available)
-if (deck.length >= 4) {
-  const newCard = deck.splice(3, 1)[0]; // Take the next card after top 3
-  deck.splice(index, 0, newCard);       // Put it in the current index
-}
+        // Insert a new card from the back into this hand position (if available)
+        if (deck.length >= 4) {
+          const newCard = deck.splice(3, 1)[0]; // Take the next card after top 3
+          deck.splice(index, 0, newCard);       // Put it in the current index
+        }
 
-renderHand();
-renderDeck();
+        renderHand();
+        renderDeck();
 
       };
     }
@@ -113,9 +109,10 @@ function renderStarterOptions() {
     { name: "Dash", value: 1 },
     { name: "Heal", value: 3 },
     { name: "Shield", value: 2 },
-    { name: "Poison", value: 3 },
-    { name: "Charge", value: 2 }
-  ];
+    { name: "Bomber", value: 3 },
+    { name: "Charge", value: 2 },
+    { name: "Lightning", value: 5 },
+  ]
 
   const container = document.getElementById("starter-cards");
   container.innerHTML = "";
@@ -126,37 +123,36 @@ function renderStarterOptions() {
     card.textContent = `${cardData.name} (-${cardData.value})`;
 
     card.onclick = () => {
-      // Subtract energy when card is selected
+      // Don't allow selection if deck is full
+      const lastNullIndex = deck.lastIndexOf(null);
+      if (lastNullIndex === -1) {
+        showMessage("Deck is full. All cards are set.", "red");
+        return;
+      }
+    
+      // Don't allow selection if not enough energy
       if (currentBar < cardData.value) {
         showMessage(`Not enough energy to add "${cardData.name}".`, 'red');
         return;
       }
-
+    
+      // Subtract energy and update
       currentBar -= cardData.value;
       updateBar();
       showMessage(`Added "${cardData.name}" to deck.`, 'green');
-
-      // Find the last null spot in the deck (positions 4–7) and remove it
-      const lastNullIndex = deck.lastIndexOf(null);
-
-      if (lastNullIndex === -1) {
-        // If there's no null spot, the deck is full
-        showMessage("Deck is full. All cards are set.", "red");
-        return;
-      }
-
-      // Remove the last null spot and insert the new card at the end of the deck
-      deck.splice(lastNullIndex, 1);  // Remove the last null slot
-      deck.push({ ...cardData });  // Add the selected card at the bottom of the deck
-
-      // Render the deck and the hand after adding the card
+    
+      // Add card to deck
+      deck.splice(lastNullIndex, 1);  
+      deck.push({ ...cardData });
+    
       renderHand();
       renderDeck();
-      
-      // Disable the selected starter card (visually)
+    
+      // Visually disable this card
       card.style.pointerEvents = "none";
       card.style.opacity = 0.5;
     };
+    
 
     container.appendChild(card);
   });
@@ -196,6 +192,28 @@ function autoRecharge() {
     }
   }, 200);
 }
+
+document.addEventListener('keydown', (e) => {
+  const key = e.key;
+  if (!['1', '2', '3', '4'].includes(key)) return;
+
+  const index = parseInt(key) - 1;
+  const cardObj = deck[index];
+
+  if (cardObj && currentBar >= cardObj.value) {
+    currentBar -= cardObj.value;
+    updateCardStates()
+    showMessage(`Used "${cardObj.name}" for -${cardObj.value}.`, 'green');
+
+    // Remove from hand and add to bottom of deck
+    deck.splice(index, 1);
+    deck.push(cardObj);
+
+    renderHand();
+  } else if (cardObj) {
+    showMessage(`Not enough energy for "${cardObj.name}".`, 'red');
+  }
+});
 
 // Initialize
 updateBar();
