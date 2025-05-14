@@ -1,4 +1,3 @@
-/* Basic Page Style */
 body {
   font-family: Arial, sans-serif;
   text-align: center;
@@ -6,7 +5,6 @@ body {
   padding: 20px;
 }
 
-/* Bar Container */
 .bar-container {
   position: relative;
   height: 30px;
@@ -17,7 +15,6 @@ body {
   overflow: hidden;
 }
 
-/* Bar Fill */
 #bar-fill {
   height: 100%;
   width: 100%;
@@ -25,7 +22,6 @@ body {
   transition: width 0.6s ease-in-out;
 }
 
-/* Bar Text */
 #bar-text {
   position: absolute;
   width: 100%;
@@ -36,7 +32,6 @@ body {
   color: #000;
 }
 
-/* Cards Section Layout */
 .cards-section {
   display: flex;
   justify-content: center;
@@ -46,7 +41,6 @@ body {
   margin-top: 20px;
 }
 
-/* Hand and Deck Card Containers */
 .cards-container,
 .deck-preview {
   display: flex;
@@ -56,14 +50,12 @@ body {
   justify-content: center;
 }
 
-/* Deck Stack (vertical if needed) */
 #deck-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* Card Styling */
 .card {
   position: relative;
   padding: 10px;
@@ -81,7 +73,6 @@ body {
   transition: opacity 0s;
 }
 
-/* Card Hover and Click Effects */
 .card:hover {
   transform: scale(1.05);
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
@@ -92,7 +83,6 @@ body {
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.15);
 }
 
-/* Disabled Cards */
 .disabled-card {
   background-color: #aaa !important;
   cursor: not-allowed;
@@ -107,7 +97,6 @@ body {
   box-shadow: none;
 }
 
-/* Deck Position Label (for next cards: 1, 2, 3...) */
 .deck-position-label {
   position: absolute;
   top: -10px;
@@ -120,12 +109,10 @@ body {
   font-weight: bold;
 }
 
-/* Input Container */
 .input-container {
   margin-top: 20px;
 }
 
-/* Message Area */
 #message-area {
   margin-top: 15px;
   min-height: 24px;
@@ -134,14 +121,12 @@ body {
   padding: 10px 0;
 }
 
-/* Deck Preview Cards */
 .deck-preview .card {
   background-color: #ccc;
   cursor: default;
 }
 
-/* Responsive Design */
-@media (max-width: 600px) {
+@media (max-width: 800px) {
   .cards-section {
     flex-direction: column;
     align-items: center;
