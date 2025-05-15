@@ -1,8 +1,60 @@
 let maxBar = 10
-let currentBar = 10
+let currentBar = 7
 let maxDeckSize = 8
+let tripleElixir = false
+const normalElixirRate = 0.036
+const doubleElixirRate = 0.071
+const tripleElixirRate = 0.107
+let elixirInterval = 100
+let matchDuration = 180
+let timeLeft = matchDuration
+let elixirRate = normalElixirRate
+let deck = [null, null, null, null, null, null, null, null]
+let timerInterval = null
+let elixirIntervalId = null
 
-const deck = [null, null, null, null, null, null, null, null]
+function enableDoubleElixir() {
+  elixirRate = 0.071
+}
+
+let doubleElixir = false
+
+function startMatchTimer() {
+  const timerElement = document.getElementById("time")
+
+  if (timerInterval) clearInterval(timerInterval)
+
+  timeLeft = matchDuration
+  doubleElixir = false
+  tripleElixir = false
+  elixirRate = normalElixirRate
+
+  timerInterval = setInterval(() => {
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval)
+      timerElement.textContent = "0:00"
+      return
+    }
+
+    if (timeLeft === 60 && !doubleElixir) {
+      doubleElixir = true
+      elixirRate = doubleElixirRate
+      showMessage("⚡ Double Elixir Activated!", 'black', timerElement)
+    }
+
+    if (timeLeft === 30 && !tripleElixir) {
+      tripleElixir = true
+      elixirRate = tripleElixirRate
+      showMessage("🔥 Triple Elixir Activated!", 'orange', timerElement)
+    }
+
+    const minutes = Math.floor(timeLeft / 60)
+    const seconds = timeLeft % 60
+    timerElement.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`
+
+    timeLeft--
+  }, 1000)
+}
 
 function updateBar() {
   const barFill = document.getElementById("bar-fill")
@@ -17,8 +69,7 @@ function updateBar() {
   updateCardStates()
 }
 
-function showMessage(message, color = 'red') {
-  const messageArea = document.getElementById("message-area")
+function showMessage(message, color = 'red', messageArea = document.getElementById("message-area")) {
   messageArea.textContent = message
   messageArea.style.color = color
 }
@@ -38,7 +89,7 @@ function renderHand() {
       cardContent.innerHTML = "<strong>?</strong>"
       card.style.pointerEvents = "none"
     } else {
-      cardContent.innerHTML = `<strong>${cardObj.name}</strong><br/>-${cardObj.value}`
+      cardContent.innerHTML = `<img src="${cardObj.imgSrc}"><strong>${cardObj.name}-(${cardObj.value})</strong>`
       const affordable = currentBar >= cardObj.value
 
       if (affordable) {
@@ -51,13 +102,12 @@ function renderHand() {
 
       card.onclick = () => {
         if (currentBar < cardObj.value) return
-        currentBar -= cardObj.value;
+        currentBar -= cardObj.value
         updateCardStates()
-        showMessage(`Used "${cardObj.name}" for -${cardObj.value}.`, 'green')
+        showMessage(`Used "${cardObj.name}" for -${cardObj.value}`, 'green')
 
         deck.splice(index, 1)
-
-        deck.push(cardObj);
+        deck.push(cardObj)
 
         if (deck.length >= 4) {
           const newCard = deck.splice(3, 1)[0]
@@ -66,13 +116,12 @@ function renderHand() {
 
         renderHand()
         renderDeck()
-
       }
     }
 
     card.appendChild(cardContent)
     handContainer.appendChild(card)
-  });
+  })
 }
 
 function renderDeck() {
@@ -81,7 +130,7 @@ function renderDeck() {
 
   deck.slice(4, 8).forEach((cardObj) => {
     const card = document.createElement("div")
-    card.className = "card";
+    card.className = "card"
 
     const cardContent = document.createElement("div")
     cardContent.className = "card-content"
@@ -90,7 +139,7 @@ function renderDeck() {
       cardContent.innerHTML = "<strong>?</strong>"
       card.style.pointerEvents = "none"
     } else {
-      cardContent.innerHTML = `<strong>${cardObj.name}</strong><br/>-${cardObj.value}`
+      cardContent.innerHTML = `<img src="${cardObj.imgSrc}"><strong>${cardObj.name} (-${cardObj.value})</strong>`
     }
 
     card.appendChild(cardContent)
@@ -99,52 +148,50 @@ function renderDeck() {
 }
 
 function renderStarterOptions() {
-  const starterList = [
-    { name: "Strike", value: 2 },
-    { name: "Block", value: 1 },
-    { name: "Fireball", value: 4 },
-    { name: "Dash", value: 1 },
-    { name: "Heal", value: 3 },
-    { name: "Shield", value: 2 },
-    { name: "Bomber", value: 3 },
-    { name: "Charge", value: 2 },
-    { name: "Lightning", value: 5 },
-  ]
-
+  const starterList = cards
   const container = document.getElementById("starter-cards")
   container.innerHTML = ""
 
   starterList.forEach((cardData) => {
     const card = document.createElement("div")
     card.className = "starter-card"
-    card.textContent = `${cardData.name} (-${cardData.value})`
+    card.innerHTML = `<img src="${cardData.imgSrc}"><div>${cardData.name}</div>`
 
     card.onclick = () => {
-      const lastNullIndex = deck.lastIndexOf(null);
+      let lastNullIndex = deck.lastIndexOf(null)
       if (lastNullIndex === -1) {
         showMessage("Deck is full. All cards are set.", "red")
+        document.body.style.justifyContent = "center"
+        document.querySelector('.starter-options').style.display = 'none'
         return
       }
-    
+
       if (currentBar < cardData.value) {
         showMessage(`Not enough energy to add "${cardData.name}".`, 'red')
         return
       }
-    
+
       currentBar -= cardData.value
       updateBar()
       showMessage(`Added "${cardData.name}" to deck.`, 'green')
-    
+
       deck.splice(lastNullIndex, 1)
       deck.push({ ...cardData })
-    
+
       renderHand()
       renderDeck()
-    
-      card.style.pointerEvents = "none";
-      card.style.opacity = 0.5;
+
+      card.style.pointerEvents = "none"
+      card.style.opacity = 0.5
+
+      lastNullIndex = deck.lastIndexOf(null)
+      if (lastNullIndex === -1) {
+        showMessage("Deck is full. All cards are set.", "red")
+        document.body.style.justifyContent = "center"
+        document.querySelector('.starter-options').style.display = 'none'
+        return
+      }
     }
-    
 
     container.appendChild(card)
   })
@@ -154,7 +201,7 @@ function preloadDeck() {
   renderStarterOptions()
   renderHand()
   renderDeck()
-  showMessage("Deck initialized with starter options.", "green")
+  showMessage("Game initialized with starter options.", "green")
 }
 
 function updateCardStates() {
@@ -174,12 +221,14 @@ function updateCardStates() {
 }
 
 function autoRecharge() {
-  setInterval(() => {
+  if (elixirIntervalId) clearInterval(elixirIntervalId)
+
+  elixirIntervalId = setInterval(() => {
     if (currentBar < maxBar) {
-      currentBar = Math.min(currentBar + 0.1, maxBar);
-      updateBar();
+      currentBar = Math.min(currentBar + elixirRate, maxBar)
+      updateBar()
     }
-  }, 200)
+  }, elixirInterval)
 }
 
 document.addEventListener('keydown', (e) => {
@@ -192,7 +241,7 @@ document.addEventListener('keydown', (e) => {
   if (cardObj && currentBar >= cardObj.value) {
     currentBar -= cardObj.value
     updateCardStates()
-    showMessage(`Used "${cardObj.name}" for -${cardObj.value}.`, 'green')
+    showMessage(`Used "${cardObj.name}" for -${cardObj.value}`, 'green')
 
     deck.splice(index, 1)
     deck.push(cardObj)
@@ -203,6 +252,26 @@ document.addEventListener('keydown', (e) => {
   }
 })
 
-updateBar()
-autoRecharge()
-preloadDeck()
+document.addEventListener('keydown', function(event) {
+  if (event.key === 's' || event.key === 'S') {
+    startGame()
+  }
+})
+
+function startGame() {
+  window.currentBar = 7
+  const barFill = document.getElementById("bar-fill")
+  const barText = document.getElementById("bar-text")
+  if (barFill) barFill.style.width = "70%"
+  if (barText) barText.textContent = "7/ 10"
+  currentBar = 7
+
+  const handContainer = document.getElementById("hand-container")
+  const deckContainer = document.getElementById("deck-container")
+  if (handContainer) handContainer.innerHTML = ""
+  if (deckContainer) deckContainer.innerHTML = ""
+
+  preloadDeck()
+  startMatchTimer()
+  autoRecharge()
+}

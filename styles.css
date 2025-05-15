@@ -2,7 +2,10 @@ body {
   font-family: Arial, sans-serif;
   text-align: center;
   background: #f4f4f4;
-  padding: 20px;
+  display: flex;
+  justify-content: end;
+  width: 100vw;
+  overflow: hidden;
 }
 
 .bar-container {
@@ -34,7 +37,6 @@ body {
 
 .cards-section {
   display: flex;
-  justify-content: center;
   gap: 40px;
   align-items: flex-start;
   flex-wrap: wrap;
@@ -64,13 +66,20 @@ body {
   border-radius: 8px;
   transition: transform 0.3s ease, opacity 0.3s ease;
   cursor: pointer;
-  min-width: 80px;
+  width: 90px;
+  height: auto;
+  max-width: 120px;
   text-align: center;
+  flex: 0 1 auto;
 }
 
 .card-content {
   opacity: 1;
   transition: opacity 0s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
 }
 
 .card:hover {
@@ -109,12 +118,22 @@ body {
   font-weight: bold;
 }
 
+.start {
+  /* position: absolute; */
+  width: 300px;
+  /* top: 5px;
+  right: 5px; */
+  color: gainsboro;
+  color: #000;
+  font-size: xx-large;
+  border: 2px solid black;
+}
+
 .input-container {
   margin-top: 20px;
 }
 
 #message-area {
-  margin-top: 15px;
   min-height: 24px;
   font-weight: bold;
   text-align: center;
@@ -124,6 +143,16 @@ body {
 .deck-preview .card {
   background-color: #ccc;
   cursor: default;
+}
+
+.mess {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  font-size: large;
+  border: 3px solid black;
+  margin-top: 20px;
+  border-radius: 10px;
 }
 
 @media (max-width: 800px) {
@@ -145,35 +174,52 @@ body {
   }
 
   .card {
-    min-width: 70px;
+    width: 70px;
   }
 }
 
 .starter-options {
   position: absolute;
-  left: 20px;
-  top: 80px;
-  width: 140px;
+  left: 0px;
+  top: 0px;
   background: #fff;
-  padding: 10px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: fit-content;
 }
 
 #starter-cards {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 60vw;
 }
 
+
+
 .starter-card {
+  display: flex;
+  flex-direction: column;
+  width: 60px;
   background-color: #f0f0f0;
-  padding: 8px;
-  border: 2px solid #bbb;
-  border-radius: 6px;
+  border: 1px solid #bbb;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
   transition: background-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+
+img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  min-width: 60px;
 }
 
 .starter-card:hover {
