@@ -274,4 +274,5 @@ function startGame() {
   preloadDeck()
   startMatchTimer()
   autoRecharge()
+  startVoiceRecognition()
 }
